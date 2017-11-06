@@ -6,9 +6,13 @@ class Cell extends THREE.Mesh {
     this.position.x = pos.x;
     this.position.y = pos.y;
     this.position.z = pos.z;
-    this.state = state;
-    this.visible = state;
+    this.state = Cell.DEAD;
     this.nextState = state;
+    this.visible = state;
+    this.time = 0;
+    this.scale.x = 0;
+    this.scale.y = 0;
+    this.scale.z = 0;
   }
 
   isAlive() {
@@ -17,16 +21,39 @@ class Cell extends THREE.Mesh {
 
   kill() {
     this.nextState = Cell.DEAD;
-    this.visible = false;
+    // this.visible = false;
   }
 
   revive() {
     this.nextState = Cell.ALIVE;
-    this.visible = true;
+    // this.visible = true;
   }
 
-  update() {
-    this.state = this.nextState;
+  update(dt) {
+    // this.state = this.nextState;
+    if(this.isAlive() && this.nextState === Cell.DEAD) {
+      this.scale.x -= dt / 300;
+      this.scale.y -= dt / 300;
+      this.scale.z -= dt / 300;
+      if(this.scale.x < 0.1) {
+        this.state = this.nextState;
+        this.scale.x = 0;
+        this.scale.y = 0;
+        this.scale.z = 0;
+        this.visible = false;
+      }
+    } else if(!this.isAlive() && this.nextState === Cell.ALIVE) {
+      this.visible = true;
+      this.scale.x += dt / 300;
+      this.scale.y += dt / 300;
+      this.scale.z += dt / 300;
+      if(this.scale.x > 0.9) {
+        this.state = this.nextState;
+        this.scale.x = 1;
+        this.scale.y = 1;
+        this.scale.z = 1;
+      }
+    }
   }
 
   static get ALIVE() {

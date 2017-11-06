@@ -76,15 +76,24 @@ positions.push(geometry.faces[39].normal.multiplyScalar(sphereRadius + 1));
 let board = new Board(boardHeight, boardWidth, positions);
 scene.add(board);
 
-setInterval(() => {
-  board.nextGeneration();
-}, 1000);
+let timePerFrame = 1 / 60.0;
+let currentTime = Date.now();
 
 // Funktion, welche die Szene rendert. Wird immer
 // wieder aufgerufen, idealerweise mit 60 FPS.
 (function render() {
   requestAnimationFrame(render);
+
+  let newTime = Date.now();
+  let frameTime = newTime - currentTime;
+  currentTime = newTime;
+
+  while(frameTime > 0) {
+    let dt = Math.min(frameTime, timePerFrame);
+    frameTime -= dt;
+
+    board.update(dt);
+  }
   renderer.render(scene, camera);
   controls.update();
-  board.update();
 })();

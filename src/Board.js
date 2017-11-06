@@ -9,6 +9,7 @@ class Board extends THREE.Group {
     this.cells = new Array(rows * columns);
     this.positions = positions;
     this.randomize();
+    this.time = 0;
     // this.setOldCell(1, 0, new Cell(0, 1));
     // this.setOldCell(1, 1, new Cell(0, 0));
     // this.setOldCell(1, 2, new Cell(0, 0));
@@ -78,9 +79,15 @@ class Board extends THREE.Group {
     }
   }
 
-  update() {
+  update(dt) {
+    this.time += dt;
+    if(this.time > 1000) {
+      this.nextGeneration();
+      this.time = 0;
+    }
+    
     for(let cell of this.cells) {
-      cell.update();
+      cell.update(dt);
     }
   }
 
