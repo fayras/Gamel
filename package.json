@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "electron": "^1.7.9",
+    "three": "^0.88.0"
+  },
+  "scripts": {
+    "start": "electron ."
+  }
+}
