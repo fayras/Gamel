@@ -17,7 +17,7 @@ class Board extends THREE.Group {
 
   randomize() {
     for(let r = 0; r < this.rows; r++) {
-      let rIndex = r * this.rows;
+      let rIndex = r * this.columns;
       for(let c = 0; c < this.columns; c++) {
         let index = rIndex + c;
         let position = this.positions[index];
@@ -81,11 +81,11 @@ class Board extends THREE.Group {
 
   update(dt) {
     this.time += dt;
-    if(this.time > 1000) {
+    if(this.time > 1500) {
       this.nextGeneration();
       this.time = 0;
     }
-    
+
     for(let cell of this.cells) {
       cell.update(dt);
     }

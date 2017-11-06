@@ -1,6 +1,7 @@
 const THREE = require('three');
 const Controls = require('./Controls');
 const Board = require('./Board');
+const Planet = require('./Planet');
 
 Number.prototype.mod = function(n) {
   return ((this%n)+n)%n;
@@ -11,9 +12,9 @@ const height = window.innerHeight;
 
 // Erzeugt eine neue Szene. Zu dieser werden Objekte
 // hinzugefügt, welche dann gerendert werden sollen.
-var scene = new THREE.Scene();
+let scene = new THREE.Scene();
 // Eine neue Kamera, mit FOV = 75, und einer Reichweite bis 1000.
-var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
@@ -28,49 +29,30 @@ controls.dynamicDampingFactor = 0.3;
 
 // Erzeugt einen neuen WebGL Renderer, setzt die Größe auf
 // die des Fensters und fügt ein Canvas in die Seite ein.
-var renderer = new THREE.WebGLRenderer();
+let renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
 document.body.appendChild(renderer.domElement);
 
-const boardWidth = 15;
-const boardHeight = 15;
+const boardWidth = 20;
+const boardHeight = 20;
 const sphereRadius = 20;
-var geometry = new THREE.SphereGeometry(sphereRadius, boardWidth, boardHeight);
-var material = new THREE.MeshPhongMaterial({
-	color: 0x156289,
-	emissive: 0x072534,
-	side: THREE.DoubleSide,
-  flatShading: true
-});
-var sphere = new THREE.Mesh( geometry, material );
-scene.add( sphere );
 
-var lights = [];
-lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+let planet = new Planet(sphereRadius, boardWidth, boardHeight);
+scene.add(planet);
 
-lights[ 0 ].position.set( 0, 200, 0 );
-lights[ 1 ].position.set( 100, 200, 100 );
-lights[ 2 ].position.set( - 100, - 200, - 100 );
+let light1 = new THREE.AmbientLight(0x404040);
+let light2 = new THREE.PointLight(0xffffff, 1, 0);
+let light3 = new THREE.PointLight(0xffffff, 1, 0);
 
-scene.add( lights[ 0 ] );
-scene.add( lights[ 1 ] );
-scene.add( lights[ 2 ] );
+light1.position.set(0, 200, 0);
+light2.position.set(100, 200, 100);
+light3.position.set(- 100, - 200, - 100);
 
-let positions = geometry.faces.filter((item, index) => {
-  if(index < sphereRadius || index > geometry.faces.length - sphereRadius) {
-    return true;
-  }
-  if(index % 2 === 0) {
-    return true;
-  }
-  return false;
-}).map(item => {
-  return item.normal.clone().multiplyScalar(sphereRadius + 1);
-});
+scene.add(light1);
+scene.add(light2);
+scene.add(light3);
 
-let board = new Board(boardHeight, boardWidth, positions);
+let board = new Board(boardHeight, boardWidth, planet.getPositions());
 scene.add(board);
 
 let timePerFrame = 1 / 60.0;
@@ -90,7 +72,7 @@ let currentTime = Date.now();
     frameTime -= dt;
 
     board.update(dt);
+    controls.update();
   }
   renderer.render(scene, camera);
-  controls.update();
 })();
