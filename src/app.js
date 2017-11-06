@@ -32,8 +32,8 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
 document.body.appendChild(renderer.domElement);
 
-const boardWidth = 5;
-const boardHeight = 5;
+const boardWidth = 15;
+const boardHeight = 15;
 const sphereRadius = 20;
 var geometry = new THREE.SphereGeometry(sphereRadius, boardWidth, boardHeight);
 var material = new THREE.MeshPhongMaterial({
@@ -58,20 +58,17 @@ scene.add( lights[ 0 ] );
 scene.add( lights[ 1 ] );
 scene.add( lights[ 2 ] );
 
-let positions = [];
-positions.push(geometry.faces[0].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[1].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[2].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[3].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[4].normal.multiplyScalar(sphereRadius + 1));
-for(let i = 5; i < 35; i += 2) {
-  positions.push(geometry.faces[i].normal.multiplyScalar(sphereRadius + 1));
-}
-positions.push(geometry.faces[35].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[36].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[37].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[38].normal.multiplyScalar(sphereRadius + 1));
-positions.push(geometry.faces[39].normal.multiplyScalar(sphereRadius + 1));
+let positions = geometry.faces.filter((item, index) => {
+  if(index < sphereRadius || index > geometry.faces.length - sphereRadius) {
+    return true;
+  }
+  if(index % 2 === 0) {
+    return true;
+  }
+  return false;
+}).map(item => {
+  return item.normal.clone().multiplyScalar(sphereRadius + 1);
+});
 
 let board = new Board(boardHeight, boardWidth, positions);
 scene.add(board);
