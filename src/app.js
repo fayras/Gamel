@@ -4,7 +4,7 @@ const Board = require('./Board');
 const Planet = require('./Planet');
 
 Number.prototype.mod = function(n) {
-  return ((this%n)+n)%n;
+  return ((this % n) + n) % n;
 };
 
 const width = window.innerWidth;
@@ -41,8 +41,12 @@ let planet = new Planet(sphereRadius, boardWidth, boardHeight);
 scene.add(planet);
 
 let light1 = new THREE.AmbientLight(0x404040);
-let light2 = new THREE.PointLight(0xffffff, 1, 0);
+let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
 let light3 = new THREE.PointLight(0xffffff, 1, 0);
+
+light1.castShadow = true;
+light2.castShadow = true;
+light3.castShadow = true;
 
 light1.position.set(0, 200, 0);
 light2.position.set(100, 200, 100);

@@ -2,7 +2,7 @@ const THREE = require('three');
 
 class Cell extends THREE.Mesh {
   constructor(pos , state = Cell.ALIVE) {
-    super(new THREE.SphereGeometry(1, 10, 10), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+    super(new THREE.SphereGeometry(1, 10, 10), new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x000000 }));
     this.position.x = pos.x;
     this.position.y = pos.y;
     this.position.z = pos.z;
