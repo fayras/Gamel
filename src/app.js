@@ -1,6 +1,5 @@
 const THREE = require('three');
 const Controls = require('./Controls');
-const Board = require('./Board');
 const Planet = require('./Planet');
 
 Number.prototype.mod = function(n) {
@@ -56,9 +55,6 @@ scene.add(light1);
 scene.add(light2);
 scene.add(light3);
 
-let board = new Board(boardHeight, boardWidth, planet.getPositions());
-scene.add(board);
-
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
 
@@ -75,7 +71,7 @@ let currentTime = Date.now();
     let dt = Math.min(frameTime, timePerFrame);
     frameTime -= dt;
 
-    board.update(dt);
+    planet.update(dt);
     controls.update();
   }
   renderer.render(scene, camera);

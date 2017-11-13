@@ -1,4 +1,5 @@
 const THREE = require('three');
+const Board = require('./Board');
 
 class Planet extends THREE.Mesh {
   constructor(radius, width, height) {
@@ -10,10 +11,14 @@ class Planet extends THREE.Mesh {
       	side: THREE.DoubleSide,
         flatShading: true
       })
-    );
+		);
+
     this.radius = radius;
     this.width = width;
-    this.height = height;
+		this.height = height;
+
+		this.board = new Board(height, width, this.getPositions());
+		this.add(this.board);
   }
 
   getPositions() {
@@ -28,6 +33,10 @@ class Planet extends THREE.Mesh {
     }).map(item => {
       return item.normal.clone().multiplyScalar(this.radius + 1);
     });
+	}
+
+	update(dt) {
+		this.board.update(dt);
 	}
 
 	onClick(face) {
