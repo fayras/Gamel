@@ -25,6 +25,8 @@ class Planet extends THREE.Group {
 		this.cellsHashMap = this.createCells();
 
 		this.board = new Board(height, width);
+
+		this.pause = false;
   }
 
   createCells() {
@@ -58,6 +60,8 @@ class Planet extends THREE.Group {
 	}
 
 	update(dt) {
+		if(this.pause) return;
+
 		this.board.update(dt);
 
 		for(let index = 0; index < this.board.cells.length; index++) {

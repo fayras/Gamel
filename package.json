@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "dat.gui": "git+https://github.com/dataarts/dat.gui.git",
     "electron": "^1.7.9",
     "three": "^0.88.0"
   },

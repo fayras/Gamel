@@ -1,4 +1,5 @@
 const THREE = require('three');
+const dat = require('dat.gui/build/dat.gui.js');
 const Controls = require('./Controls');
 const Planet = require('./Planet');
 
@@ -54,6 +55,9 @@ light3.position.set(- 100, - 200, - 100);
 scene.add(light1);
 scene.add(light2);
 scene.add(light3);
+
+let gui = new dat.GUI({ width: 300, resizable: false });
+gui.add(planet, 'pause').name('Pause');
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
