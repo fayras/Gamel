@@ -8,11 +8,11 @@ class Cell extends THREE.Mesh {
     this.position.z = pos.z;
     this.state = Cell.DEAD;
     this.nextState = state;
-    this.visible = state;
+    this.visible = false;
     this.time = 0;
-    this.scale.x = 0;
-    this.scale.y = 0;
-    this.scale.z = 0;
+    this.scale.x = 0.01;
+    this.scale.y = 0.01;
+    this.scale.z = 0.01;
   }
 
   isAlive() {
@@ -37,9 +37,9 @@ class Cell extends THREE.Mesh {
       this.scale.z -= dt / 300;
       if(this.scale.x < 0.1) {
         this.state = this.nextState;
-        this.scale.x = 0;
-        this.scale.y = 0;
-        this.scale.z = 0;
+        this.scale.x = 0.01;
+        this.scale.y = 0.01;
+        this.scale.z = 0.01;
         this.visible = false;
       }
     } else if(!this.isAlive() && this.nextState === Cell.ALIVE) {

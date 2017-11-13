@@ -1,10 +1,17 @@
 const THREE = require('three');
 const Board = require('./Board');
+const Cell = require('./Cell');
 
-class Planet extends THREE.Mesh {
+class Planet extends THREE.Group {
   constructor(radius, width, height) {
-    super(
-      new THREE.SphereGeometry(radius, width, height),
+    super();
+
+    this.radius = radius;
+    this.width = width;
+		this.height = height;
+
+		this.sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(radius, width, height),
       new THREE.MeshPhongMaterial({
       	color: 0x156289,
       	emissive: 0x072534,
@@ -12,31 +19,60 @@ class Planet extends THREE.Mesh {
         flatShading: true
       })
 		);
+		this.add(this.sphere);
 
-    this.radius = radius;
-    this.width = width;
-		this.height = height;
+		this.cells = [];
+		this.cellsHashMap = this.createCells();
 
-		this.board = new Board(height, width, this.getPositions());
-		this.add(this.board);
+		this.board = new Board(height, width);
   }
 
-  getPositions() {
-    return this.geometry.faces.filter((item, index) => {
-      if(index < this.width || index >= this.geometry.faces.length - this.width) {
-        return true;
-      }
-      if(index % 2 === 0) {
-        return true;
-      }
-      return false;
-    }).map(item => {
-      return item.normal.clone().multiplyScalar(this.radius + 1);
-    });
+  createCells() {
+		const modDigit = this.width % 2 === 0 ? 0 : 1;
+		const hashMap = new Map();
+    this.sphere.geometry.faces.forEach((face, index) => {
+			const hash = this.getHashForFace(face);
+
+      if(index < this.width || index >= this.sphere.geometry.faces.length - this.width) {
+				let cell = new Cell(face.normal.clone().multiplyScalar(this.radius + 1));
+				hashMap.set(hash, cell);
+				this.cells.push(cell);
+				this.add(cell);
+				return;
+			}
+
+      if(index % 2 === modDigit) {
+				let cell = new Cell(face.normal.clone().multiplyScalar(this.radius + 1));
+				hashMap.set(hash, cell);
+				this.cells.push(cell);
+				this.add(cell);
+				return;
+			}
+
+			let previousFace = this.sphere.geometry.faces[index - 1];
+			let cell = hashMap.get(this.getHashForFace(previousFace));
+			hashMap.set(hash, cell);
+		});
+
+		return hashMap;
 	}
 
 	update(dt) {
 		this.board.update(dt);
+
+		for(let index = 0; index < this.board.cells.length; index++) {
+			let cell = this.cells[index];
+			if(this.board.cells[index] === true) {
+				cell.revive();
+			} else if(this.board.cells[index] === false) {
+				cell.kill();
+			}
+			cell.update(dt);
+		}
+	}
+
+	getHashForFace(face) {
+		return `(${face.a},${face.b},${face.c})`;
 	}
 
 	onClick(face) {

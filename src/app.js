@@ -61,7 +61,7 @@ let currentTime = Date.now();
 // Funktion, welche die Szene rendert. Wird immer
 // wieder aufgerufen, idealerweise mit 60 FPS.
 (function render() {
-  // requestAnimationFrame(render);
+  requestAnimationFrame(render);
 
   let newTime = Date.now();
   let frameTime = newTime - currentTime;
