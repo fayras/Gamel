@@ -28,7 +28,12 @@ class Planet extends THREE.Mesh {
     }).map(item => {
       return item.normal.clone().multiplyScalar(this.radius + 1);
     });
-  }
+	}
+
+	onClick(face) {
+		// let index = face.faceIndex;
+		console.log(face);
+	}
 }
 
 module.exports = Planet;

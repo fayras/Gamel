@@ -65,7 +65,7 @@ let currentTime = Date.now();
 // Funktion, welche die Szene rendert. Wird immer
 // wieder aufgerufen, idealerweise mit 60 FPS.
 (function render() {
-  requestAnimationFrame(render);
+  // requestAnimationFrame(render);
 
   let newTime = Date.now();
   let frameTime = newTime - currentTime;
@@ -80,3 +80,23 @@ let currentTime = Date.now();
   }
   renderer.render(scene, camera);
 })();
+
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+
+document.addEventListener('click', onDocumentMouseDown, false);
+
+function onDocumentMouseDown(event) {
+  event.preventDefault();
+
+  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  var intersects = raycaster.intersectObject(planet);
+
+  if (intersects.length > 0) {
+    planet.onClick(intersects[0].face);
+  }
+}
