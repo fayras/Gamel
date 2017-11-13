@@ -19,6 +19,8 @@ class Planet extends THREE.Group {
         flatShading: true
       })
 		);
+		this.sphere.castShadow = true;
+		this.sphere.receiveShadow = true;
 		this.add(this.sphere);
 
 		this.cells = [];

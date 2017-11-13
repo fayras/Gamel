@@ -31,6 +31,8 @@ controls.dynamicDampingFactor = 0.3;
 // die des Fensters und fügt ein Canvas in die Seite ein.
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const boardWidth = 20;
@@ -41,8 +43,8 @@ let planet = new Planet(sphereRadius, boardWidth, boardHeight);
 scene.add(planet);
 
 let light1 = new THREE.AmbientLight(0x404040);
-let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-let light3 = new THREE.PointLight(0xffffff, 1, 0);
+let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
+let light3 = new THREE.PointLight(0xffffff, 0.75, 0);
 
 light1.castShadow = true;
 light2.castShadow = true;
@@ -50,7 +52,7 @@ light3.castShadow = true;
 
 light1.position.set(0, 200, 0);
 light2.position.set(100, 200, 100);
-light3.position.set(- 100, - 200, - 100);
+light3.position.set(100, 200, 100);
 
 scene.add(light1);
 scene.add(light2);
@@ -58,6 +60,9 @@ scene.add(light3);
 
 let gui = new dat.GUI({ width: 300, resizable: false });
 gui.add(planet, 'pause').name('Pause');
+gui.add(light1, 'visible').name('Ambient Light');
+gui.add(light2, 'visible').name('Hemisphere Light');
+gui.add(light3, 'visible').name('Spot Light');
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
