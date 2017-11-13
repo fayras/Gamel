@@ -60,9 +60,7 @@ class Planet extends THREE.Group {
 	}
 
 	update(dt) {
-		if(this.pause) return;
-
-		this.board.update(dt);
+		if(!this.pause) this.board.update(dt);
 
 		for(let index = 0; index < this.board.cells.length; index++) {
 			let cell = this.cells[index];
@@ -80,8 +78,10 @@ class Planet extends THREE.Group {
 	}
 
 	onClick(face) {
-		// let index = face.faceIndex;
-		console.log(face);
+		let cell = this.cellsHashMap.get(this.getHashForFace(face));
+		let index = this.cells.indexOf(cell);
+		let state = cell.toggle();
+		this.board.cells[index] = state;
 	}
 }
 

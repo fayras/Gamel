@@ -29,6 +29,15 @@ class Cell extends THREE.Mesh {
     // this.visible = true;
   }
 
+  toggle() {
+    if(this.isAlive()) {
+      this.kill();
+    } else {
+      this.revive();
+    }
+    return this.nextState === Cell.ALIVE;
+  }
+
   update(dt) {
     // this.state = this.nextState;
     if(this.isAlive() && this.nextState === Cell.DEAD) {

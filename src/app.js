@@ -94,7 +94,7 @@ function onDocumentMouseDown(event) {
 
   raycaster.setFromCamera(mouse, camera);
 
-  var intersects = raycaster.intersectObject(planet);
+  var intersects = raycaster.intersectObject(planet.sphere);
 
   if (intersects.length > 0) {
     planet.onClick(intersects[0].face);
