@@ -45141,6 +45141,14 @@ Number.prototype.mod = function(n) {
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+// Erzeugt einen neuen WebGL Renderer, setzt die Größe auf
+// die des Fensters und fügt ein Canvas in die Seite ein.
+let renderer = new THREE.WebGLRenderer();
+renderer.setSize(width, height);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
 // Erzeugt eine neue Szene. Zu dieser werden Objekte
 // hinzugefügt, welche dann gerendert werden sollen.
 let scene = new THREE.Scene();
@@ -45149,7 +45157,7 @@ let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
-controls = new Controls(camera);
+controls = new Controls(camera, renderer.domElement);
 controls.rotateSpeed = 1.0;
 controls.zoomSpeed = 1.2;
 controls.panSpeed = 0.8;
@@ -45157,14 +45165,6 @@ controls.noZoom = false;
 controls.noPan = false;
 controls.staticMoving = true;
 controls.dynamicDampingFactor = 0.3;
-
-// Erzeugt einen neuen WebGL Renderer, setzt die Größe auf
-// die des Fensters und fügt ein Canvas in die Seite ein.
-let renderer = new THREE.WebGLRenderer();
-renderer.setSize(width, height);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-document.body.appendChild(renderer.domElement);
 
 const boardWidth = 20;
 const boardHeight = 20;
@@ -45177,8 +45177,8 @@ let light1 = new THREE.AmbientLight(0x404040);
 let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
 let light3 = new THREE.PointLight(0xffffff, 0.75, 0);
 
-light1.castShadow = true;
-light2.castShadow = true;
+// light1.castShadow = true;
+// light2.castShadow = true;
 light3.castShadow = true;
 
 light1.position.set(0, 200, 0);
@@ -45191,9 +45191,17 @@ scene.add(light3);
 
 let gui = new dat.GUI({ width: 300, resizable: false });
 gui.add(planet, 'pause').name('Pause');
+gui.add(planet, 'reset').name('Neu verteilen');
 gui.add(light1, 'visible').name('Ambient Light');
 gui.add(light2, 'visible').name('Hemisphere Light');
 gui.add(light3, 'visible').name('Spot Light');
+gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
+  let size = Math.pow(2, value + 8);
+  light3.shadow.mapSize.width = size;
+  light3.shadow.mapSize.height = size;
+  light3.shadow.map.dispose();
+  light3.shadow.map = null;
+});
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
@@ -50261,6 +50269,13 @@ class Planet extends THREE.Group {
 		let state = cell.toggle();
 		this.board.cells[index] = state;
 	}
+
+	reset() {
+		for(let cell of this.cells) {
+			cell.kill();
+		}
+		this.board.randomize();
+	}
 }
 
 module.exports = Planet;
@@ -50276,25 +50291,22 @@ class Board {
     this.rows = rows;
     this.cells = new Array(rows * columns);
     this.next = new Array(rows * columns);
-    // this.positions = positions;
     this.randomize();
-    this.time = 0;
   }
 
   randomize() {
+    this.time = 0;
     this.next.fill(undefined);
     for(let r = 0; r < this.rows; r++) {
       let rIndex = r * this.columns;
       for(let c = 0; c < this.columns; c++) {
         let index = rIndex + c;
-        // let position = this.positions[index];
         let cell;
         if(Math.random() < 0.1) {
           cell = true; // new Cell(position, Cell.ALIVE);
         } else {
           cell = false; // new Cell(position, Cell.DEAD);
         }
-        // this.add(cell);
         this.cells[index] = cell;
       }
     }
@@ -50415,7 +50427,7 @@ class Cell extends THREE.Mesh {
 
   update(dt) {
     // this.state = this.nextState;
-    if(this.isAlive() && this.nextState === Cell.DEAD) {
+    if(this.nextState === Cell.DEAD) {
       this.scale.x -= dt / 300;
       this.scale.y -= dt / 300;
       this.scale.z -= dt / 300;
@@ -50426,7 +50438,7 @@ class Cell extends THREE.Mesh {
         this.scale.z = 0.01;
         this.visible = false;
       }
-    } else if(!this.isAlive() && this.nextState === Cell.ALIVE) {
+    } else if(this.nextState === Cell.ALIVE) {
       this.visible = true;
       this.scale.x += dt / 300;
       this.scale.y += dt / 300;
