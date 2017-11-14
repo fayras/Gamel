@@ -1,14 +1,18 @@
 {
+  "name": "gamel",
+  "description": "Gamel - Game of Life Simulation in 3D",
+  "author": "Dimitri Tarnavski",
+  "version": "0.1.0",
   "dependencies": {
     "dat.gui": "git+https://github.com/dataarts/dat.gui.git",
     "three": "^0.88.0"
   },
-  "scripts": {
-    "start": "electron .",
-    "web": "webpack js/app.js dist/app.js --hide-modules"
-  },
   "devDependencies": {
     "electron": "^1.7.9",
     "webpack": "^3.8.1"
+  },
+  "scripts": {
+    "start": "electron .",
+    "web": "webpack js/app.js dist/app.js --hide-modules"
   }
 }
