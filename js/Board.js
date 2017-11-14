@@ -4,25 +4,22 @@ class Board {
     this.rows = rows;
     this.cells = new Array(rows * columns);
     this.next = new Array(rows * columns);
-    // this.positions = positions;
     this.randomize();
-    this.time = 0;
   }
 
   randomize() {
+    this.time = 0;
     this.next.fill(undefined);
     for(let r = 0; r < this.rows; r++) {
       let rIndex = r * this.columns;
       for(let c = 0; c < this.columns; c++) {
         let index = rIndex + c;
-        // let position = this.positions[index];
         let cell;
         if(Math.random() < 0.1) {
           cell = true; // new Cell(position, Cell.ALIVE);
         } else {
           cell = false; // new Cell(position, Cell.DEAD);
         }
-        // this.add(cell);
         this.cells[index] = cell;
       }
     }

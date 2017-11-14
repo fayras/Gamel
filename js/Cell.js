@@ -42,7 +42,7 @@ class Cell extends THREE.Mesh {
 
   update(dt) {
     // this.state = this.nextState;
-    if(this.isAlive() && this.nextState === Cell.DEAD) {
+    if(this.nextState === Cell.DEAD) {
       this.scale.x -= dt / 300;
       this.scale.y -= dt / 300;
       this.scale.z -= dt / 300;
@@ -53,7 +53,7 @@ class Cell extends THREE.Mesh {
         this.scale.z = 0.01;
         this.visible = false;
       }
-    } else if(!this.isAlive() && this.nextState === Cell.ALIVE) {
+    } else if(this.nextState === Cell.ALIVE) {
       this.visible = true;
       this.scale.x += dt / 300;
       this.scale.y += dt / 300;

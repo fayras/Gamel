@@ -60,6 +60,7 @@ scene.add(light3);
 
 let gui = new dat.GUI({ width: 300, resizable: false });
 gui.add(planet, 'pause').name('Pause');
+gui.add(planet, 'reset').name('Neu verteilen');
 gui.add(light1, 'visible').name('Ambient Light');
 gui.add(light2, 'visible').name('Hemisphere Light');
 gui.add(light3, 'visible').name('Spot Light');

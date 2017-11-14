@@ -85,6 +85,13 @@ class Planet extends THREE.Group {
 		let state = cell.toggle();
 		this.board.cells[index] = state;
 	}
+
+	reset() {
+		for(let cell of this.cells) {
+			cell.kill();
+		}
+		this.board.randomize();
+	}
 }
 
 module.exports = Planet;
