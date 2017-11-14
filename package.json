@@ -1,10 +1,14 @@
 {
   "dependencies": {
     "dat.gui": "git+https://github.com/dataarts/dat.gui.git",
-    "electron": "^1.7.9",
     "three": "^0.88.0"
   },
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "web": "webpack js/app.js dist/app.js --hide-modules"
+  },
+  "devDependencies": {
+    "electron": "^1.7.9",
+    "webpack": "^3.8.1"
   }
 }
