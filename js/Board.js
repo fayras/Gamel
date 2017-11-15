@@ -56,7 +56,7 @@ class Board {
     let index = this.getIndex(row, col);
     if(index === undefined) return;
 
-    if(this.onChangeFunc !== null) {
+    if(this.onChangeFunc !== null && value !== this.cells[index]) {
       this.onChangeFunc(index, value);
     }
     return this.next[index] = value;
