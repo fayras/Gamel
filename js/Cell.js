@@ -44,24 +44,26 @@ class Cell extends THREE.Mesh {
   update(dt) {
     // this.state = this.nextState;
     if(this.nextState === Cell.DEAD) {
+      let scale = Tween.easeOutCirc(this.time, 1, 0.01, 300);
       this.scale.x -= dt / 300;
       this.scale.y -= dt / 300;
       this.scale.z -= dt / 300;
-      if(this.scale.x < 0.1) {
+      if(scale === Tween.DONE) {
         this.state = this.nextState;
-        this.scale.x = 0.01;
-        this.scale.y = 0.01;
-        this.scale.z = 0.01;
+        this.nextState = null;
         this.visible = false;
+        this.time = 0;
+      } else {
+        this.scale.x = scale;
+        this.scale.y = scale;
+        this.scale.z = scale;
+        this.time += dt;
       }
     } else if(this.nextState === Cell.ALIVE) {
       let scale = Tween.easeOutBack(this.time, 0, 1, 300);
       if(scale === Tween.DONE) {
         this.state = this.nextState;
         this.nextState = null;
-        this.scale.x = 1;
-        this.scale.y = 1;
-        this.scale.z = 1;
         this.time = 0;
       } else {
         this.visible = true;
