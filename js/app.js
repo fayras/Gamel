@@ -52,13 +52,19 @@ scene.add(light1);
 scene.add(light2);
 scene.add(light3);
 
+let settings = {
+  shadowQuality: 1,
+  fps: 0,
+}
+
 let gui = new dat.GUI({ width: 300, resizable: false });
+gui.add(settings, 'fps').name('FPS').listen();
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
 gui.add(light1, 'visible').name('Umgebungslicht');
 gui.add(light2, 'visible').name('Hemisphärenlicht');
 gui.add(light3, 'visible').name('Punktlichtquelle');
-gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
+gui.add(settings, 'shadowQuality').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
   let size = Math.pow(2, value + 8);
   light3.shadow.mapSize.width = size;
   light3.shadow.mapSize.height = size;
@@ -68,6 +74,10 @@ gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishC
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
+let statistics = {
+  time: 0,
+  frames: 0,
+};
 
 // Funktion, welche die Szene rendert. Wird immer
 // wieder aufgerufen, idealerweise mit 60 FPS.
@@ -78,6 +88,7 @@ let currentTime = Date.now();
   let frameTime = newTime - currentTime;
   currentTime = newTime;
 
+  updateStatistics(frameTime);
   while(frameTime > 0) {
     let dt = Math.min(frameTime, timePerFrame);
     frameTime -= dt;
@@ -87,6 +98,17 @@ let currentTime = Date.now();
   }
   renderer.render(scene, camera);
 })();
+
+function updateStatistics(time) {
+  statistics.time += time;
+  statistics.frames += 1;
+
+  if(statistics.time >= 1000) {
+    settings.fps = statistics.frames;
+    statistics.time -= 1000;
+    statistics.frames = 0;
+  }
+}
 
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
