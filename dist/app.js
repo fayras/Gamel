@@ -45132,11 +45132,8 @@ function CanvasRenderer() {
 const THREE = __webpack_require__(0);
 const dat = __webpack_require__(2);
 const Controls = __webpack_require__(3);
-const Planet = __webpack_require__(4);
-
-Number.prototype.mod = function(n) {
-  return ((this % n) + n) % n;
-};
+const Statistics = __webpack_require__(4);
+const Planet = __webpack_require__(5);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -45157,7 +45154,7 @@ let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
-controls = new Controls(camera, renderer.domElement);
+let controls = new Controls(camera, renderer.domElement);
 controls.rotateSpeed = 1.0;
 controls.zoomSpeed = 1.2;
 controls.panSpeed = 0.8;
@@ -45177,8 +45174,6 @@ let light1 = new THREE.AmbientLight(0x404040);
 let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
 let light3 = new THREE.PointLight(0xffffff, 0.75, 0);
 
-// light1.castShadow = true;
-// light2.castShadow = true;
 light3.castShadow = true;
 
 light1.position.set(0, 200, 0);
@@ -45189,12 +45184,15 @@ scene.add(light1);
 scene.add(light2);
 scene.add(light3);
 
+let statistics = new Statistics();
+
 let gui = new dat.GUI({ width: 300, resizable: false });
+gui.add(statistics, 'fps').name('FPS').listen();
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
-gui.add(light1, 'visible').name('Ambient Light');
-gui.add(light2, 'visible').name('Hemisphere Light');
-gui.add(light3, 'visible').name('Spot Light');
+gui.add(light1, 'visible').name('Umgebungslicht');
+gui.add(light2, 'visible').name('Hemisphärenlicht');
+gui.add(light3, 'visible').name('Punktlichtquelle');
 gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
   let size = Math.pow(2, value + 8);
   light3.shadow.mapSize.width = size;
@@ -45215,6 +45213,7 @@ let currentTime = Date.now();
   let frameTime = newTime - currentTime;
   currentTime = newTime;
 
+  statistics.update(frameTime);
   while(frameTime > 0) {
     let dt = Math.min(frameTime, timePerFrame);
     frameTime -= dt;
@@ -50180,11 +50179,37 @@ module.exports = THREE.TrackballControls;
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports) {
+
+class Statistics {
+  constructor() {
+    this.time = 0;
+    this.frames = 0;
+    this.fps = 0;
+  }
+
+  update(elapsedTime) {
+    this.time += elapsedTime;
+    this.frames += 1;
+
+    if(this.time >= 1000) {
+      this.fps = this.frames;
+      this.time -= 1000;
+      this.frames = 0;
+    }
+  }
+}
+
+module.exports = Statistics;
+
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
-const Board = __webpack_require__(5);
-const Cell = __webpack_require__(6);
+const Board = __webpack_require__(6);
+const Cell = __webpack_require__(7);
 
 class Planet extends THREE.Group {
   constructor(radius, width, height) {
@@ -50211,6 +50236,15 @@ class Planet extends THREE.Group {
 		this.cellsHashMap = this.createCells();
 
 		this.board = new Board(height, width);
+		this.board.onChange((index, value) => {
+			let cell = this.cells[index];
+			if(value === true) {
+				cell.revive();
+			} else if(value === false) {
+				cell.kill();
+			}
+		});
+		this.board.randomize();
 
 		this.pause = false;
   }
@@ -50250,11 +50284,6 @@ class Planet extends THREE.Group {
 
 		for(let index = 0; index < this.board.cells.length; index++) {
 			let cell = this.cells[index];
-			if(this.board.cells[index] === true) {
-				cell.revive();
-			} else if(this.board.cells[index] === false) {
-				cell.kill();
-			}
 			cell.update(dt);
 		}
 	}
@@ -50282,8 +50311,12 @@ module.exports = Planet;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
+
+Number.prototype.mod = function(n) {
+  return ((this % n) + n) % n;
+};
 
 class Board {
   constructor(rows, columns) {
@@ -50291,23 +50324,19 @@ class Board {
     this.rows = rows;
     this.cells = new Array(rows * columns);
     this.next = new Array(rows * columns);
-    this.randomize();
+    this.onChangeFunc = null;
   }
 
   randomize() {
     this.time = 0;
     this.next.fill(undefined);
     for(let r = 0; r < this.rows; r++) {
-      let rIndex = r * this.columns;
       for(let c = 0; c < this.columns; c++) {
-        let index = rIndex + c;
-        let cell;
         if(Math.random() < 0.1) {
-          cell = true; // new Cell(position, Cell.ALIVE);
+          this.setCurrentCell(r, c, true); // new Cell(position, Cell.ALIVE);
         } else {
-          cell = false; // new Cell(position, Cell.DEAD);
+          this.setCurrentCell(r, c, false); // new Cell(position, Cell.DEAD);
         }
-        this.cells[index] = cell;
       }
     }
   }
@@ -50317,20 +50346,40 @@ class Board {
     return cell === true;
   }
 
-  getCell(row, col) {
-    if(row < 0 || row >= this.rows.length) return null;
+  getIndex(row, col) {
+    if(row < 0 || row >= this.rows.length) return undefined;
 
     let x = row.mod(this.rows);
     let y = col.mod(this.columns);
-    return this.cells[this.rows * x + y];
+    return this.columns * x + y;
   }
 
-  setCell(row, col, value) {
-    if(row < 0 || row >= this.rows.length) return;
+  getCell(row, col) {
+    let index = this.getIndex(row, col);
 
-    let x = row.mod(this.rows);
-    let y = col.mod(this.columns);
-    return this.next[this.rows * x + y] = value;
+    if(index === undefined) return;
+
+    return this.cells[index];
+  }
+
+  setCurrentCell(row, col, value) {
+    let index = this.getIndex(row, col);
+    if(index === undefined) return;
+
+    if(this.onChangeFunc !== null) {
+      this.onChangeFunc(index, value);
+    }
+    return this.cells[index] = value;
+  }
+
+  setNextCell(row, col, value) {
+    let index = this.getIndex(row, col);
+    if(index === undefined) return;
+
+    if(this.onChangeFunc !== null && value !== this.cells[index]) {
+      this.onChangeFunc(index, value);
+    }
+    return this.next[index] = value;
   }
 
   nextGeneration() {
@@ -50347,13 +50396,17 @@ class Board {
         if(this.cellAlive(r, c + 1)) counter++;
         if(this.cellAlive(r + 1, c + 1)) counter++;
 
-        if(this.cellAlive(r, c) && counter < 2) this.setCell(r, c, false);
-        if(this.cellAlive(r, c) && (counter > 1 && counter < 4)) this.setCell(r, c, true);
-        if(this.cellAlive(r, c) && counter > 3) this.setCell(r, c, false);
-        if(!this.cellAlive(r, c) && counter === 3) this.setCell(r, c, true);
+        if(this.cellAlive(r, c) && counter < 2) this.setNextCell(r, c, false);
+        if(this.cellAlive(r, c) && (counter > 1 && counter < 4)) this.setNextCell(r, c, true);
+        if(this.cellAlive(r, c) && counter > 3) this.setNextCell(r, c, false);
+        if(!this.cellAlive(r, c) && counter === 3) this.setNextCell(r, c, true);
       }
     }
     this.cells = [ ...this.next ];
+  }
+
+  onChange(func) {
+    this.onChangeFunc = func;
   }
 
   update(dt) {
@@ -50380,14 +50433,18 @@ module.exports = Board;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
+const Tween = __webpack_require__(8);
 
 class Cell extends THREE.Mesh {
   constructor(pos , state = Cell.ALIVE) {
-    super(new THREE.SphereGeometry(1, 10, 10), new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x000000 }));
+    super(
+      new THREE.SphereGeometry(1, 10, 10),
+      new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x000000 })
+    );
     this.castShadow = true;
     this.receiveShadow = true;
     this.position.x = pos.x;
@@ -50408,12 +50465,10 @@ class Cell extends THREE.Mesh {
 
   kill() {
     this.nextState = Cell.DEAD;
-    // this.visible = false;
   }
 
   revive() {
     this.nextState = Cell.ALIVE;
-    // this.visible = true;
   }
 
   toggle() {
@@ -50426,28 +50481,27 @@ class Cell extends THREE.Mesh {
   }
 
   update(dt) {
-    // this.state = this.nextState;
     if(this.nextState === Cell.DEAD) {
-      this.scale.x -= dt / 300;
-      this.scale.y -= dt / 300;
-      this.scale.z -= dt / 300;
-      if(this.scale.x < 0.1) {
+      let scale = Tween.easeOutCirc(this.time, 1, 0.01, 300);
+      if(scale === Tween.DONE) {
         this.state = this.nextState;
-        this.scale.x = 0.01;
-        this.scale.y = 0.01;
-        this.scale.z = 0.01;
+        this.nextState = null;
         this.visible = false;
+        this.time = 0;
+      } else {
+        this.scale.setScalar(scale);
+        this.time += dt;
       }
     } else if(this.nextState === Cell.ALIVE) {
-      this.visible = true;
-      this.scale.x += dt / 300;
-      this.scale.y += dt / 300;
-      this.scale.z += dt / 300;
-      if(this.scale.x > 0.9) {
+      let scale = Tween.easeOutBack(this.time, 0, 1, 300);
+      if(scale === Tween.DONE) {
         this.state = this.nextState;
-        this.scale.x = 1;
-        this.scale.y = 1;
-        this.scale.z = 1;
+        this.nextState = null;
+        this.time = 0;
+      } else {
+        this.visible = true;
+        this.scale.setScalar(scale);
+        this.time += dt;
       }
     }
   }
@@ -50462,6 +50516,49 @@ class Cell extends THREE.Mesh {
 }
 
 module.exports = Cell;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+class Tween {
+  static easeOutBack(t, b, _c, d, s) {
+    if(t > d) {
+      return Tween.DONE;
+    }
+
+    var c = _c - b;
+    if (s === void 0) {
+      s = 1.70158;
+    }
+    return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
+  }
+
+  static easeOutExpo(t, b, _c, d) {
+    if(t > d) {
+      return Tween.DONE;
+    }
+
+    var c = _c - b;
+    return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+  }
+
+  static easeOutCirc(t, b, _c, d) {
+    if(t > d) {
+      return Tween.DONE;
+    }
+
+    var c = _c - b;
+    return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+  }
+
+  static get DONE() {
+    return 'tweening_done';
+  }
+}
+
+module.exports = Tween;
 
 
 /***/ })
