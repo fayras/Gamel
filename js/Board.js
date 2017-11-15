@@ -1,3 +1,7 @@
+Number.prototype.mod = function(n) {
+  return ((this % n) + n) % n;
+};
+
 class Board {
   constructor(rows, columns) {
     this.columns = columns;

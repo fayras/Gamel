@@ -3,10 +3,6 @@ const dat = require('dat.gui/build/dat.gui.js');
 const Controls = require('./Controls');
 const Planet = require('./Planet');
 
-Number.prototype.mod = function(n) {
-  return ((this % n) + n) % n;
-};
-
 const width = window.innerWidth;
 const height = window.innerHeight;
 
