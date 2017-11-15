@@ -46,8 +46,6 @@ let light1 = new THREE.AmbientLight(0x404040);
 let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
 let light3 = new THREE.PointLight(0xffffff, 0.75, 0);
 
-// light1.castShadow = true;
-// light2.castShadow = true;
 light3.castShadow = true;
 
 light1.position.set(0, 200, 0);
@@ -61,9 +59,9 @@ scene.add(light3);
 let gui = new dat.GUI({ width: 300, resizable: false });
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
-gui.add(light1, 'visible').name('Ambient Light');
-gui.add(light2, 'visible').name('Hemisphere Light');
-gui.add(light3, 'visible').name('Spot Light');
+gui.add(light1, 'visible').name('Umgebungslicht');
+gui.add(light2, 'visible').name('Hemisphärenlicht');
+gui.add(light3, 'visible').name('Punktlichtquelle');
 gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
   let size = Math.pow(2, value + 8);
   light3.shadow.mapSize.width = size;
