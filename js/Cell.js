@@ -1,4 +1,5 @@
 const THREE = require('three');
+const Tween = require('./Tween');
 
 class Cell extends THREE.Mesh {
   constructor(pos , state = Cell.ALIVE) {
@@ -54,15 +55,20 @@ class Cell extends THREE.Mesh {
         this.visible = false;
       }
     } else if(this.nextState === Cell.ALIVE) {
-      this.visible = true;
-      this.scale.x += dt / 300;
-      this.scale.y += dt / 300;
-      this.scale.z += dt / 300;
-      if(this.scale.x > 0.9) {
+      let scale = Tween.easeOutBack(this.time, 0, 1, 300);
+      if(scale === Tween.DONE) {
         this.state = this.nextState;
+        this.nextState = null;
         this.scale.x = 1;
         this.scale.y = 1;
         this.scale.z = 1;
+        this.time = 0;
+      } else {
+        this.visible = true;
+        this.scale.x = scale;
+        this.scale.y = scale;
+        this.scale.z = scale;
+        this.time += dt;
       }
     }
   }

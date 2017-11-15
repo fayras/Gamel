@@ -27,6 +27,15 @@ class Planet extends THREE.Group {
 		this.cellsHashMap = this.createCells();
 
 		this.board = new Board(height, width);
+		this.board.onChange((index, value) => {
+			let cell = this.cells[index];
+			if(value === true) {
+				cell.revive();
+			} else if(value === false) {
+				cell.kill();
+			}
+		});
+		this.board.randomize();
 
 		this.pause = false;
   }
@@ -66,11 +75,6 @@ class Planet extends THREE.Group {
 
 		for(let index = 0; index < this.board.cells.length; index++) {
 			let cell = this.cells[index];
-			if(this.board.cells[index] === true) {
-				cell.revive();
-			} else if(this.board.cells[index] === false) {
-				cell.kill();
-			}
 			cell.update(dt);
 		}
 	}

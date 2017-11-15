@@ -4,23 +4,19 @@ class Board {
     this.rows = rows;
     this.cells = new Array(rows * columns);
     this.next = new Array(rows * columns);
-    this.randomize();
+    this.onChangeFunc = null;
   }
 
   randomize() {
     this.time = 0;
     this.next.fill(undefined);
     for(let r = 0; r < this.rows; r++) {
-      let rIndex = r * this.columns;
       for(let c = 0; c < this.columns; c++) {
-        let index = rIndex + c;
-        let cell;
         if(Math.random() < 0.1) {
-          cell = true; // new Cell(position, Cell.ALIVE);
+          this.setCurrentCell(r, c, true); // new Cell(position, Cell.ALIVE);
         } else {
-          cell = false; // new Cell(position, Cell.DEAD);
+          this.setCurrentCell(r, c, false); // new Cell(position, Cell.DEAD);
         }
-        this.cells[index] = cell;
       }
     }
   }
@@ -30,20 +26,40 @@ class Board {
     return cell === true;
   }
 
-  getCell(row, col) {
-    if(row < 0 || row >= this.rows.length) return null;
+  getIndex(row, col) {
+    if(row < 0 || row >= this.rows.length) return undefined;
 
     let x = row.mod(this.rows);
     let y = col.mod(this.columns);
-    return this.cells[this.rows * x + y];
+    return this.columns * x + y;
   }
 
-  setCell(row, col, value) {
-    if(row < 0 || row >= this.rows.length) return;
+  getCell(row, col) {
+    let index = this.getIndex(row, col);
 
-    let x = row.mod(this.rows);
-    let y = col.mod(this.columns);
-    return this.next[this.rows * x + y] = value;
+    if(index === undefined) return;
+
+    return this.cells[index];
+  }
+
+  setCurrentCell(row, col, value) {
+    let index = this.getIndex(row, col);
+    if(index === undefined) return;
+
+    if(this.onChangeFunc !== null) {
+      this.onChangeFunc(index, value);
+    }
+    return this.cells[index] = value;
+  }
+
+  setNextCell(row, col, value) {
+    let index = this.getIndex(row, col);
+    if(index === undefined) return;
+
+    if(this.onChangeFunc !== null) {
+      this.onChangeFunc(index, value);
+    }
+    return this.next[index] = value;
   }
 
   nextGeneration() {
@@ -60,13 +76,17 @@ class Board {
         if(this.cellAlive(r, c + 1)) counter++;
         if(this.cellAlive(r + 1, c + 1)) counter++;
 
-        if(this.cellAlive(r, c) && counter < 2) this.setCell(r, c, false);
-        if(this.cellAlive(r, c) && (counter > 1 && counter < 4)) this.setCell(r, c, true);
-        if(this.cellAlive(r, c) && counter > 3) this.setCell(r, c, false);
-        if(!this.cellAlive(r, c) && counter === 3) this.setCell(r, c, true);
+        if(this.cellAlive(r, c) && counter < 2) this.setNextCell(r, c, false);
+        if(this.cellAlive(r, c) && (counter > 1 && counter < 4)) this.setNextCell(r, c, true);
+        if(this.cellAlive(r, c) && counter > 3) this.setNextCell(r, c, false);
+        if(!this.cellAlive(r, c) && counter === 3) this.setNextCell(r, c, true);
       }
     }
     this.cells = [ ...this.next ];
+  }
+
+  onChange(func) {
+    this.onChangeFunc = func;
   }
 
   update(dt) {
