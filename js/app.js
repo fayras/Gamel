@@ -26,7 +26,7 @@ let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
-controls = new Controls(camera, renderer.domElement);
+let controls = new Controls(camera, renderer.domElement);
 controls.rotateSpeed = 1.0;
 controls.zoomSpeed = 1.2;
 controls.panSpeed = 0.8;
