@@ -45226,23 +45226,26 @@ let currentTime = Date.now();
 
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
+let dragging = false;
 
-document.addEventListener('click', onDocumentMouseDown, false);
+renderer.domElement.addEventListener("mousedown", () => { dragging = false; }, false);
+renderer.domElement.addEventListener("mousemove", () => { dragging = true; }, false);
+renderer.domElement.addEventListener("mouseup", (event) => {
+  if(dragging === false) {
+    event.preventDefault();
 
-function onDocumentMouseDown(event) {
-  event.preventDefault();
+    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+    mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
-  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-  mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
 
-  raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObject(planet.sphere);
 
-  var intersects = raycaster.intersectObject(planet.sphere);
-
-  if (intersects.length > 0) {
-    planet.onClick(intersects[0].face);
+    if (intersects.length > 0) {
+      planet.onClick(intersects[0].face);
+    }
   }
-}
+}, false);
 
 
 /***/ }),
