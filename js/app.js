@@ -1,6 +1,9 @@
 const THREE = require('three');
 const dat = require('dat.gui/build/dat.gui.js');
 const Controls = require('./Controls');
+const EffectComposer = require('./EffectComposer');
+const RenderPass = require('./RenderPass');
+const BloomPass = require('./BloomPass');
 const Statistics = require('./Statistics');
 const Planet = require('./Planet');
 
@@ -53,6 +56,17 @@ scene.add(light1);
 scene.add(light2);
 scene.add(light3);
 
+let renderScene = new RenderPass(scene, camera);
+// effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+// effectFXAA.uniforms[ 'resolution' ].value.set(1 / width, 1 / height);
+let bloomPass = new BloomPass(new THREE.Vector2(512, 512), 1.0, 0.4, 0.85); //1.0, 9, 0.5, 512);
+bloomPass.renderToScreen = true;
+
+let composer = new EffectComposer(renderer);
+composer.setSize(width, height);
+composer.addPass(renderScene);
+composer.addPass(bloomPass);
+
 let statistics = new Statistics();
 
 let gui = new dat.GUI({ width: 300, resizable: false });
@@ -90,7 +104,8 @@ let currentTime = Date.now();
     planet.update(dt);
     controls.update();
   }
-  renderer.render(scene, camera);
+  // renderer.render(scene, camera);
+  composer.render();
 })();
 
 let raycaster = new THREE.Raycaster();
