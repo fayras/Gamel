@@ -59,7 +59,7 @@ scene.add(light3);
 let renderScene = new RenderPass(scene, camera);
 // effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
 // effectFXAA.uniforms[ 'resolution' ].value.set(1 / width, 1 / height);
-let bloomPass = new BloomPass(new THREE.Vector2(512, 512), 1.0, 0.4, 0.85); //1.0, 9, 0.5, 512);
+let bloomPass = new BloomPass(new THREE.Vector2(512, 512), 0.9, 0.4, 0.85); //1.0, 9, 0.5, 512);
 bloomPass.renderToScreen = true;
 
 let composer = new EffectComposer(renderer);
