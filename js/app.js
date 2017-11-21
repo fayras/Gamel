@@ -71,6 +71,7 @@ let statistics = new Statistics();
 
 let settings = {
   shadowQuality: 1,
+  exposure: 1.0,
   bloom: {
     enable: true,
   },
@@ -80,19 +81,31 @@ let gui = new dat.GUI({ width: 300, resizable: false });
 gui.add(statistics, 'fps').name('FPS').listen();
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
-let lightSettings = gui.addFolder('Lichtquellen');
+let lightSettings = gui.addFolder('Licht und Schatten');
 lightSettings.add(light1, 'visible').name('Umgebungslicht');
 lightSettings.add(light2, 'visible').name('Hemisphärenlicht');
 lightSettings.add(light3, 'visible').name('Punktlichtquelle');
-gui.add(settings, 'shadowQuality').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
+lightSettings.add(settings, 'exposure').name('Belichtung').min(0.5).max(1.5).onFinishChange((value) => {
+  renderer.toneMappingExposure = value;
+});
+lightSettings.add(settings, 'shadowQuality').name('Schattenqualität').min(0).max(4).step(1).onFinishChange((value) => {
+  if(value === 0) {
+    light3.castShadow = false;
+    return;
+  }
+
   let size = Math.pow(2, value + 8);
+  light3.castShadow = true;
   light3.shadow.mapSize.width = size;
   light3.shadow.mapSize.height = size;
   light3.shadow.map.dispose();
   light3.shadow.map = null;
 });
-gui.addFolder('Bloom')
-  .add(settings.bloom, 'enable').name('Aktiviert');
+let bloomSettings = gui.addFolder('Bloom')
+bloomSettings.add(settings.bloom, 'enable').name('Aktiviert');
+bloomSettings.add(bloomPass, 'threshold').name('Schwelle').min(0.1).max(1.0);
+bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
+bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
