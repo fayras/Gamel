@@ -45235,8 +45235,8 @@ let currentTime = Date.now();
     planet.update(dt);
     controls.update();
   }
-  // renderer.render(scene, camera);
-  composer.render();
+  renderer.render(scene, camera);
+  // composer.render();
 })();
 
 let raycaster = new THREE.Raycaster();

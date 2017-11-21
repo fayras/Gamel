@@ -69,20 +69,30 @@ composer.addPass(bloomPass);
 
 let statistics = new Statistics();
 
+let settings = {
+  shadowQuality: 1,
+  bloom: {
+    enable: true,
+  },
+};
+
 let gui = new dat.GUI({ width: 300, resizable: false });
 gui.add(statistics, 'fps').name('FPS').listen();
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
-gui.add(light1, 'visible').name('Umgebungslicht');
-gui.add(light2, 'visible').name('Hemisphärenlicht');
-gui.add(light3, 'visible').name('Punktlichtquelle');
-gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
+let lightSettings = gui.addFolder('Lichtquellen');
+lightSettings.add(light1, 'visible').name('Umgebungslicht');
+lightSettings.add(light2, 'visible').name('Hemisphärenlicht');
+lightSettings.add(light3, 'visible').name('Punktlichtquelle');
+gui.add(settings, 'shadowQuality').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
   let size = Math.pow(2, value + 8);
   light3.shadow.mapSize.width = size;
   light3.shadow.mapSize.height = size;
   light3.shadow.map.dispose();
   light3.shadow.map = null;
 });
+gui.addFolder('Bloom')
+  .add(settings.bloom, 'enable').name('Aktiviert');
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
@@ -104,8 +114,11 @@ let currentTime = Date.now();
     planet.update(dt);
     controls.update();
   }
-  // renderer.render(scene, camera);
-  composer.render();
+  if(settings.bloom.enable) {
+    composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
 })();
 
 let raycaster = new THREE.Raycaster();
