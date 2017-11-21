@@ -4,7 +4,6 @@
   "author": "Dimitri Tarnavski",
   "version": "0.1.0",
   "dependencies": {
-    "dat.gui": "git+https://github.com/dataarts/dat.gui.git",
     "three": "^0.88.0"
   },
   "devDependencies": {

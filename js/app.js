@@ -1,5 +1,5 @@
 const THREE = require('three');
-const dat = require('dat.gui/build/dat.gui.js');
+const dat = require('./dat.gui/dat.gui.js');
 const Controls = require('./Controls');
 const EffectComposer = require('./EffectComposer');
 const RenderPass = require('./RenderPass');
