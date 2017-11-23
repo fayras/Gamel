@@ -28,13 +28,9 @@ camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
 let controls = new Controls(camera, renderer.domElement);
-controls.rotateSpeed = 1.0;
-controls.zoomSpeed = 1.2;
-controls.panSpeed = 0.8;
-controls.noZoom = false;
-controls.noPan = false;
-controls.staticMoving = true;
-controls.dynamicDampingFactor = 0.3;
+controls.rotateSpeed = 0.06;
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
 controls.maxDistance = 1500;
 
 const boardWidth = 20;
@@ -130,13 +126,14 @@ let currentTime = Date.now();
     frameTime -= dt;
 
     planet.update(dt);
-    controls.update();
   }
   if(settings.bloom.enable) {
     composer.render();
   } else {
     renderer.render(scene, camera);
   }
+
+  controls.update();
 })();
 
 let raycaster = new THREE.Raycaster();
