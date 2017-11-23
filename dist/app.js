@@ -45137,6 +45137,7 @@ const RenderPass = __webpack_require__(5);
 const BloomPass = __webpack_require__(6);
 const Statistics = __webpack_require__(10);
 const Planet = __webpack_require__(11);
+const Skybox = __webpack_require__(15);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -45153,7 +45154,7 @@ document.body.appendChild(renderer.domElement);
 // hinzugefügt, welche dann gerendert werden sollen.
 let scene = new THREE.Scene();
 // Eine neue Kamera, mit FOV = 75, und einer Reichweite bis 1000.
-let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 6000);
 camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
@@ -45165,16 +45166,20 @@ controls.noZoom = false;
 controls.noPan = false;
 controls.staticMoving = true;
 controls.dynamicDampingFactor = 0.3;
+controls.maxDistance = 1500;
 
 const boardWidth = 20;
 const boardHeight = 20;
 const sphereRadius = 20;
 
+let sky = new Skybox(5000);
+scene.add(sky);
+
 let planet = new Planet(sphereRadius, boardWidth, boardHeight);
 scene.add(planet);
 
-let light1 = new THREE.AmbientLight(0x404040);
-let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
+let light1 = new THREE.AmbientLight(0x222035);
+let light2 = new THREE.HemisphereLight(0x80626e, 0x15162a, 0.5);
 let light3 = new THREE.PointLight(0xffffff, 0.75, 0);
 
 light3.castShadow = true;
@@ -45200,20 +45205,43 @@ composer.addPass(bloomPass);
 
 let statistics = new Statistics();
 
-let gui = new dat.GUI({ width: 300, resizable: false });
+let settings = {
+  shadowQuality: 1,
+  exposure: 1.0,
+  bloom: {
+    enable: true,
+  },
+};
+
+let gui = new dat.GUI({ resizable: false });
 gui.add(statistics, 'fps').name('FPS').listen();
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
-gui.add(light1, 'visible').name('Umgebungslicht');
-gui.add(light2, 'visible').name('Hemisphärenlicht');
-gui.add(light3, 'visible').name('Punktlichtquelle');
-gui.add({ q: 1 }, 'q').name('Schattenqualität').min(1).max(4).step(1).onFinishChange((value) => {
+let lightSettings = gui.addFolder('Licht und Schatten');
+lightSettings.add(light1, 'visible').name('Umgebungslicht');
+lightSettings.add(light2, 'visible').name('Hemisphärenlicht');
+lightSettings.add(light3, 'visible').name('Punktlichtquelle');
+lightSettings.add(settings, 'exposure').name('Belichtung').min(0.5).max(1.5).onFinishChange((value) => {
+  renderer.toneMappingExposure = value;
+});
+lightSettings.add(settings, 'shadowQuality').name('Schattenqualität').min(0).max(4).step(1).onFinishChange((value) => {
+  if(value === 0) {
+    light3.castShadow = false;
+    return;
+  }
+
   let size = Math.pow(2, value + 8);
+  light3.castShadow = true;
   light3.shadow.mapSize.width = size;
   light3.shadow.mapSize.height = size;
   light3.shadow.map.dispose();
   light3.shadow.map = null;
 });
+let bloomSettings = gui.addFolder('Bloom')
+bloomSettings.add(settings.bloom, 'enable').name('Aktiviert');
+bloomSettings.add(bloomPass, 'threshold').name('Schwelle').min(0.1).max(1.0);
+bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
+bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
@@ -45235,8 +45263,11 @@ let currentTime = Date.now();
     planet.update(dt);
     controls.update();
   }
-  renderer.render(scene, camera);
-  // composer.render();
+  if(settings.bloom.enable) {
+    composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
 })();
 
 let raycaster = new THREE.Raycaster();
@@ -51445,6 +51476,36 @@ class Tween {
 }
 
 module.exports = Tween;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const THREE = __webpack_require__(0);
+
+const textureLoader = new THREE.TextureLoader();
+
+class Skybox extends THREE.Mesh {
+  constructor(orbitSize = 5000) {
+    super(
+      new THREE.CubeGeometry(orbitSize, orbitSize, orbitSize)
+    );
+
+    let directions  = ['left', 'right', 'top', 'bottom', 'front', 'back'];
+    let materialArray = directions.map((dir) => {
+      return new THREE.MeshBasicMaterial({
+        map: textureLoader.load(`images/skybox-${dir}.jpg`),
+        side: THREE.BackSide
+      });
+    });
+
+    this.material = materialArray;
+    this.material.needsUpdate = true;
+  }
+}
+
+module.exports = Skybox;
 
 
 /***/ })
