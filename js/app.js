@@ -28,7 +28,7 @@ camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
 let controls = new Controls(camera, renderer.domElement);
-controls.rotateSpeed = 0.06;
+controls.rotateSpeed = 0.1;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxDistance = 1500;
