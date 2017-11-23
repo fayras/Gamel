@@ -6,6 +6,7 @@ const RenderPass = require('./RenderPass');
 const BloomPass = require('./BloomPass');
 const Statistics = require('./Statistics');
 const Planet = require('./Planet');
+const Skybox = require('./Skybox');
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -22,7 +23,7 @@ document.body.appendChild(renderer.domElement);
 // hinzugefügt, welche dann gerendert werden sollen.
 let scene = new THREE.Scene();
 // Eine neue Kamera, mit FOV = 75, und einer Reichweite bis 1000.
-let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 6000);
 camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
@@ -34,16 +35,20 @@ controls.noZoom = false;
 controls.noPan = false;
 controls.staticMoving = true;
 controls.dynamicDampingFactor = 0.3;
+controls.maxDistance = 1500;
 
 const boardWidth = 20;
 const boardHeight = 20;
 const sphereRadius = 20;
 
+let sky = new Skybox(5000);
+scene.add(sky);
+
 let planet = new Planet(sphereRadius, boardWidth, boardHeight);
 scene.add(planet);
 
-let light1 = new THREE.AmbientLight(0x404040);
-let light2 = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
+let light1 = new THREE.AmbientLight(0x222035);
+let light2 = new THREE.HemisphereLight(0x80626e, 0x15162a, 0.5);
 let light3 = new THREE.PointLight(0xffffff, 0.75, 0);
 
 light3.castShadow = true;
@@ -77,7 +82,7 @@ let settings = {
   },
 };
 
-let gui = new dat.GUI({ width: 300, resizable: false });
+let gui = new dat.GUI({ resizable: false });
 gui.add(statistics, 'fps').name('FPS').listen();
 gui.add(planet, 'pause').name('Pause');
 gui.add(planet, 'reset').name('Neu verteilen');
