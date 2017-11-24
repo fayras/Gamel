@@ -5,6 +5,7 @@
   "version": "0.1.1",
   "dependencies": {
     "alerty": "0.0.1",
+    "showdown": "^1.8.2",
     "three": "^0.88.0"
   },
   "devDependencies": {

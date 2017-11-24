@@ -1,4 +1,5 @@
 const alerty = require('alerty/dist/js/alerty.js');
+const Showdown  = require('showdown')
 const THREE = require('three');
 const package = require('../package.json');
 const dat = require('./dat.gui/dat.gui.js');
@@ -10,7 +11,8 @@ const Statistics = require('./Statistics');
 const Planet = require('./Planet');
 const Skybox = require('./Skybox');
 
-const Changelog = require('raw-loader!../CHANGELOG.md');
+const Markdown = new Showdown.Converter();
+const changelog = Markdown.makeHtml(require('raw-loader!../CHANGELOG.md'));
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -113,7 +115,7 @@ bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
 bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
 
 gui.add({ version: () => {
-  alerty.alert(Changelog, { okLabel: 'Schließen' });
+  alerty.alert(changelog, { okLabel: 'Schließen' });
 } }, 'version').name(`Version ${package.version}`);
 
 let timePerFrame = 1 / 60.0;
