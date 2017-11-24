@@ -2,7 +2,7 @@
   "name": "gamel",
   "description": "Gamel - Game of Life Simulation in 3D",
   "author": "Dimitri Tarnavski",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
     "alerty": "0.0.1",
     "three": "^0.88.0"
