@@ -9,10 +9,13 @@
   },
   "devDependencies": {
     "electron": "^1.7.9",
+    "node-project-helpers": "git+https://github.com/fayras/Node-Project-Helpers.git",
     "webpack": "^3.8.1"
   },
   "scripts": {
     "start": "electron .",
-    "web": "webpack js/app.js dist/app.js --hide-modules"
+    "web": "webpack js/app.js dist/app.js --hide-modules",
+    "version": "nph version --changelog && git add .",
+    "postversion": "git push && git push --tags"
   }
 }
