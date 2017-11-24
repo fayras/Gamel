@@ -45129,17 +45129,26 @@ function CanvasRenderer() {
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const alerty = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"alerty\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+const alerty = __webpack_require__(2);
 const THREE = __webpack_require__(0);
-const package = __webpack_require__(2);
-const dat = __webpack_require__(3);
-const Controls = __webpack_require__(4);
-const EffectComposer = __webpack_require__(5);
-const RenderPass = __webpack_require__(6);
-const BloomPass = __webpack_require__(7);
-const Statistics = __webpack_require__(11);
-const Planet = __webpack_require__(12);
-const Skybox = __webpack_require__(16);
+const package = __webpack_require__(4);
+const dat = __webpack_require__(5);
+const Controls = __webpack_require__(6);
+const EffectComposer = __webpack_require__(7);
+const RenderPass = __webpack_require__(8);
+const BloomPass = __webpack_require__(9);
+const Statistics = __webpack_require__(13);
+const Planet = __webpack_require__(14);
+const Skybox = __webpack_require__(18);
+
+let Changelog = undefined;
+// require('raw-loader!../CHANGELOG.md')
+var userAgent = navigator.userAgent.toLowerCase();
+if (userAgent.indexOf(' electron/') > -1) {
+  Changelog = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"fs\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).readFileSync('./CHANGELOG.md', 'utf8')
+} else {
+  Changelog = __webpack_require__(19);
+}
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -45242,7 +45251,7 @@ bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
 bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
 
 gui.add({ version: () => {
-  alerty.alert('test');
+  alerty.alert(Changelog, { okLabel: 'Schließen' });
 } }, 'version').name(`Version ${package.version}`);
 
 let timePerFrame = 1 / 60.0;
@@ -45299,12 +45308,398 @@ renderer.domElement.addEventListener("mouseup", (event) => {
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = {"name":"gamel","description":"Gamel - Game of Life Simulation in 3D","author":"Dimitri Tarnavski","version":"0.1.0","dependencies":{"alerty":"0.0.1","three":"^0.88.0"},"devDependencies":{"electron":"^1.7.9","webpack":"^3.8.1"},"scripts":{"start":"electron .","web":"webpack js/app.js dist/app.js --hide-modules"}}
+/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_RESULT__;(function () {
+  'use strict';
+
+  // common function which is often using
+  var commonUse = {
+    /**
+     * [Add class to element]
+     *
+     * @param el {Object}   -- element.
+     * @param cls {String}  -- classes.
+     */
+    addClass: function(el, cls) {
+      var elClass = el.className;
+      var blank = (elClass !== '') ? ' ' : '';
+      var added = elClass + blank + cls;
+      el.className = added;
+    },
+
+    /**
+     * [Remove class from element]
+     *
+     * @param el {Object}   -- element.
+     * @param cls {String}  -- classes.
+     */
+    removeClass: function(el, cls) {
+      var elClass = ' '+el.className+' ';
+      elClass = elClass.replace(/(\s+)/gi, ' ');
+      var removed = elClass.replace(' '+cls+' ', ' ');
+      removed = removed.replace(/(^\s+)|(\s+$)/g, '');
+      el.className = removed;
+    },
+
+    /**
+     * [if element has some class]
+     *
+     * @param el {Object}   -- element.
+     * @param cls {String}  -- classes.
+     *
+     * @return  {Boolean}   -- true or false.
+     */
+    hasClass: function(el, cls) {
+      var elClass = el.className;
+      var elClassList = elClass.split(/\s+/);
+      var x = 0;
+      for(x in elClassList) {
+        if(elClassList[x] == cls) {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    /**
+     * [add event to some element, dom0, dom1, supports fuck ie]
+     *
+     * @param el {Object}       -- element.
+     * @param type {String}     -- event type, such as 'click', 'mouseover'.
+     * @param func {Function}   -- function.
+     *
+     */
+    addEvent: function(el, type, func) {
+      if(el.addEventListener) {
+        el.addEventListener(type, func, false);
+      } else if(el.attachEvent){ 
+        el.attachEvent('on' + type, func);
+      } else{ 
+        el['on' + type] = func; 
+      }  
+    },
+
+    /**
+     * [remove event to some element, dom0, dom1, supports fuck ie]
+     *
+     * @param el {Object}       -- element.
+     * @param type {String}     -- event type, such as 'click', 'mouseover'.
+     * @param func {Function}   -- function.
+     *
+     */
+    removeEvent: function(el, type, func) {
+      if (el.removeEventListener){ 
+        el.removeEventListener(type, func, false);
+      } else if (el.detachEvent){
+        el.detachEvent('on' + type, func);
+      } else {
+        delete el['on' + type];
+      }
+    },
+
+    /**
+     * [Remove element node]
+     *
+     * @param el {Object}   -- element.
+     *
+     */
+    removeElement: function(el) {
+      (el && el.parentNode) && el.parentNode.removeChild(el);
+    },
+
+    /**
+     * [Set unique id]
+     *
+     * @param prefix {String}   -- id prefix name.
+     *
+     * @return  {String}
+     */
+    setUid: function(prefix) {
+      do prefix += Math.floor(Math.random() * 1000000);
+      while (document.getElementById(prefix));
+      return prefix;
+    }
+  };
+
+  /**
+   * [Alertiy public API]
+   *
+   * @return {Object}
+   */
+  var Alerty = function() {
+
+    // private object for Alerty object inherit
+    var Dialog = {
+      
+      // static defaults params
+      defaults: {
+        okLabel: '\u786e\u5b9a',
+        cancelLabel: '\u53d6\u6d88',
+        time: 2000
+      },
+
+      previousCallback: null,  // for cache previous toasts callbak, to handle if call more than 1 alerty
+
+      // html templates
+      template: '<div class="alerty-overlay" tabindex="-1"></div>'+
+                '<div class="alerty">'+
+                  '<div class="alerty-title"></div>'+
+                  '<div class="alerty-content">'+
+                    '<p class="alerty-message"></p>'+
+                    '<div class="alerty-prompt">'+
+                      '<input type="text" placeholder="" value="">'+
+                      '<div class="input-line"></div>'+
+                    '</div>'+
+                  '</div>'+
+                  '<div class="alerty-action">'+
+                    '<a class="btn-cancel"></a>'+
+                    '<a class="btn-ok"></a>'+
+                  '</div>'+
+                '</div>',
+
+
+
+      /** 
+       * [Build the HTML contents]
+       *
+       * @param type {String}           -- get the dialog type to arrange the correspondent html content.
+       * @param content {String}        -- the text contents dialog to users.
+       * @param opts {Object}           -- options.
+       * @param onOk {Function}         -- custom callback function after click ok button.
+       * @param onCancel {Function}     -- custom callback function after click cancel button.
+       */
+      setup: function(type, content, opts, onOk, onCancel) {
+        // for if argument opts is not given.
+        var detect = typeof opts === 'function';
+        if (detect) {
+          onCancel = onOk;
+          onOk = opts;
+        }
+
+        var $oldModal = document.querySelector('.alerty');
+
+
+        // if previous modal is open, remove it and immediately callback
+        if ($oldModal) {
+          commonUse.removeElement($oldModal);
+          var _callback = this.previousCallback;
+          if (_callback) _callback();
+        }
+
+        var $wrapper = document.createElement('div');
+        $wrapper.innerHTML = this.template;
+
+        // append alerty to body
+        while ($wrapper.firstChild) {
+          document.body.appendChild($wrapper.firstChild);
+        }
+
+        // cache alerty dom for next use
+        var $modal = document.querySelector('.alerty');
+        var $overlay = document.querySelector('.alerty-overlay');
+        var $title = $modal.querySelector('.alerty-title');
+        var $message = $modal.querySelector('.alerty-message');
+        var $btnArea = $modal.querySelector('.alerty-action');
+        var $btnOk = $modal.querySelector('.btn-ok');
+        var $btnCancel = $modal.querySelector('.btn-cancel');
+        var $prompt = $modal.querySelector('.alerty-prompt');
+        var $input = $prompt.querySelector('input');
+
+        // set uid
+        $modal.id = commonUse.setUid('alerty');
+        $overlay.id = 'overlay-'+$modal.id;
+
+        // animation show alerty
+        commonUse.addClass($overlay, 'active');
+        commonUse.addClass($modal, 'alerty-show');
+        $message.innerHTML = content;  // set msg
+
+        if (opts && opts.time) this.defaults.time = opts.time; // handle time if set
+
+        if (type !== 'prompt') {
+          commonUse.removeElement($prompt); // other type do not need
+        } else {
+          $input.focus(); // auto focus input if type prompt
+
+          if(opts && opts.inputType) $input.setAttribute('type', opts.inputType); // handle input type, such as 'password'
+          if(opts && opts.inputPlaceholder) $input.setAttribute('placeholder', opts.inputPlaceholder); // handle input placeholder
+          if(opts && opts.inputValue) $input.setAttribute('value', opts.inputValue); // handle input default value 
+        }
+
+        if (type === 'toasts') {
+          this.previousCallback = onOk;  // cache callback
+
+          // rearrange template
+          commonUse.removeElement($title);
+          commonUse.removeElement($btnArea);
+          commonUse.removeElement($overlay);
+          commonUse.addClass($modal, 'toasts');
+
+          if (opts && opts.place === 'top') commonUse.addClass($modal, 'place-top'); // handle toasts top place
+          if (opts && opts.bgColor) $modal.style.backgroundColor = opts.bgColor;
+          if (opts && opts.fontColor) $message.style.color =opts.fontColor;
+
+        } else {
+          commonUse.addClass(document.body, 'no-scrolling'); // body no scorll
+          (opts && opts.title) ? $title.innerHTML = opts.title : commonUse.removeElement($title); // handle title if set
+          (opts && opts.okLabel) ? $btnOk.innerHTML = opts.okLabel : $btnOk.innerHTML = this.defaults.okLabel; // handle ok text if set
+          $modal.style.marginTop =  - $modal.offsetHeight / 2 + 'px'; // set the place to center using margin-top;
+
+          if (type === 'confirm' || type === 'prompt') {
+            (opts && opts.cancelLabel) ? $btnCancel.innerHTML = opts.cancelLabel : $btnCancel.innerHTML = this.defaults.cancelLabel; // handle cancel text if set
+          } else {
+            commonUse.removeElement($btnCancel); // toasts and alery type do not need cancel btn
+          }
+        }
+
+        this.bindEvent($modal, onOk, onCancel); // see next
+      },
+
+      /** 
+       * [Bind event to dialog]
+       *
+       * @param $modal {Object}       -- modal node.
+       * @param: onOk {Function}      -- ok callback.
+       * @param: onCancel {Function}  -- cancel callback.
+       */
+      bindEvent: function($modal, onOk, onCancel) {
+        var that = this;
+        var $btnOk = $modal.querySelector('.btn-ok');
+        var $btnCancel = $modal.querySelector('.btn-cancel');
+
+        // toasts delay hide
+        if (commonUse.hasClass($modal, 'toasts')) {
+          setTimeout(function() {
+            // if toasts has been removed
+            if (document.getElementById($modal.id) === null) return;
+            that.close($modal, onOk);
+          }, that.defaults.time);
+        }
+        // click ok button
+        if ($btnOk) {
+          commonUse.addEvent($btnOk, 'click', function() {
+            that.close($modal, onOk);
+          });
+        }
+        // click cancel button
+        if ($btnCancel) {
+          commonUse.addEvent($btnCancel, 'click', function() {
+            that.close($modal, onCancel);
+          });
+        }
+      },
+
+      /** 
+       * [Close the actived modal and remove it]
+       *
+       * @param: $modal {Obejct}  -- modal element to remove.
+       * @param: callback {Function}  -- callback function.
+       */
+      close: function($modal, callback) {
+        var $input = $modal.querySelector('input');
+        var $overlay = document.getElementById('overlay-'+$modal.id);
+
+        // hide alerty with animation
+        commonUse.removeClass($modal, 'alerty-show');
+        commonUse.addClass($modal, 'alerty-hide');
+
+        // remove alerty and other added elements
+        setTimeout(function(){
+          $overlay && commonUse.removeClass($overlay, 'active'), commonUse.removeClass(document.body, 'no-scrolling');
+          
+          commonUse.removeElement($modal);
+          commonUse.removeElement($overlay);
+          if (callback) {
+            setTimeout(function(){
+              !$input ? callback() : callback($input.value);  // handle prompt type, callback the input value
+            }, 100);
+          }
+        },100);
+      }
+    };
+
+    return {
+      // return alerty.toasts();
+      toasts: function(content, opts, callback) {
+        Dialog.setup('toasts', content, opts, callback);
+      },
+
+      // return alerty.alert();
+      alert: function(content, opts, onOk) {
+        Dialog.setup('alert', content, opts, onOk);
+      },
+
+      // return alerty.confirm();
+      confirm: function(content, opts, onOk, onCancel) {
+        Dialog.setup('confirm', content, opts, onOk, onCancel);
+      },
+
+      // return alerty.prompt();
+      prompt: function(content, opts, callback) {
+        Dialog.setup('prompt', content, opts, callback);
+      }
+    };
+  };
+
+
+
+  // NPM, AMD, and wndow support
+  if ('undefined' !== typeof module && !! module && !! module.exports) {
+    module.exports = function() {
+      return new Alerty();
+    };
+    var obj = new Alerty();
+    for (var key in obj) {
+      module.exports[key] = obj[key];
+    }
+  } else if (true) {
+    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+      return new Alerty();
+    }.call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else {
+    window.alerty = new Alerty();
+  }
+}());
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)(module)))
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = {"name":"gamel","description":"Gamel - Game of Life Simulation in 3D","author":"Dimitri Tarnavski","version":"0.1.1","dependencies":{"alerty":"0.0.1","three":"^0.88.0"},"devDependencies":{"electron":"^1.7.9","node-project-helpers":"git+https://github.com/fayras/Node-Project-Helpers.git","raw-loader":"^0.5.1","webpack":"^3.8.1"},"scripts":{"start":"electron .","web":"webpack js/app.js dist/app.js --hide-modules","preversion":"npm run web","version":"nph version --changelog && git add .","postversion":"git push && git push --tags"}}
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -49601,7 +49996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 //# sourceMappingURL=dat.gui.js.map
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50653,7 +51048,7 @@ module.exports = OrbitControls;
 
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50852,7 +51247,7 @@ var EffectComposer = function ( renderer, renderTarget ) {
 
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50925,7 +51320,7 @@ var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAl
 
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50936,9 +51331,9 @@ var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAl
  */
 
 const THREE = __webpack_require__(0);
-const LuminosityHighPassShader = __webpack_require__(8);
-const CopyShader = __webpack_require__(9);
-const ShaderPass = __webpack_require__(10);
+const LuminosityHighPassShader = __webpack_require__(10);
+const CopyShader = __webpack_require__(11);
+const ShaderPass = __webpack_require__(12);
 
 var UnrealBloomPass = function ( resolution, strength, radius, threshold ) {
 
@@ -51320,7 +51715,7 @@ var UnrealBloomPass = function ( resolution, strength, radius, threshold ) {
 
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51392,7 +51787,7 @@ THREE.LuminosityHighPassShader = {
 
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51446,7 +51841,7 @@ THREE.CopyShader = {
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51521,7 +51916,7 @@ THREE.ShaderPass = function ( shader, textureID ) {
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports) {
 
 class Statistics {
@@ -51547,12 +51942,12 @@ module.exports = Statistics;
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
-const Board = __webpack_require__(13);
-const Cell = __webpack_require__(14);
+const Board = __webpack_require__(15);
+const Cell = __webpack_require__(16);
 
 class Planet extends THREE.Group {
   constructor(radius, width, height) {
@@ -51654,7 +52049,7 @@ module.exports = Planet;
 
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports) {
 
 Number.prototype.mod = function(n) {
@@ -51776,11 +52171,11 @@ module.exports = Board;
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
-const Tween = __webpack_require__(15);
+const Tween = __webpack_require__(17);
 
 class Cell extends THREE.Mesh {
   constructor(pos , state = Cell.ALIVE) {
@@ -51862,7 +52257,7 @@ module.exports = Cell;
 
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports) {
 
 class Tween {
@@ -51905,7 +52300,7 @@ module.exports = Tween;
 
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
@@ -51933,6 +52328,12 @@ class Skybox extends THREE.Mesh {
 
 module.exports = Skybox;
 
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+module.exports = "GAMEL Changelog\r\n\r\n<!-- CHANGES -->\n\n## 0.1.1 _- 24.11.2017_\n#### Added\n- Erste vorzeigbare Version von Gamel.\n\n\r\n"
 
 /***/ })
 /******/ ]);

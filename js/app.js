@@ -10,6 +10,8 @@ const Statistics = require('./Statistics');
 const Planet = require('./Planet');
 const Skybox = require('./Skybox');
 
+const Changelog = require('raw-loader!../CHANGELOG.md');
+
 const width = window.innerWidth;
 const height = window.innerHeight;
 
@@ -111,7 +113,7 @@ bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
 bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
 
 gui.add({ version: () => {
-  alerty.alert('test', { okLabel: 'Schließen' });
+  alerty.alert(Changelog, { okLabel: 'Schließen' });
 } }, 'version').name(`Version ${package.version}`);
 
 let timePerFrame = 1 / 60.0;
