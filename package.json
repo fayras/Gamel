@@ -14,8 +14,8 @@
   },
   "scripts": {
     "start": "nph serve ./",
-    "web": "webpack js/app.js dist/app.js --hide-modules",
-    "preversion": "npm run web",
+    "build": "webpack js/app.js dist/app.js --hide-modules",
+    "preversion": "npm run build",
     "version": "nph version --changelog && git add .",
     "postversion": "git push && git push --tags"
   }
