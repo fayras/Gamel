@@ -15,6 +15,7 @@
   "scripts": {
     "start": "electron .",
     "web": "webpack js/app.js dist/app.js --hide-modules",
+    "preversion": "npm run web",
     "version": "nph version --changelog && git add .",
     "postversion": "git push && git push --tags"
   }
