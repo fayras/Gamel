@@ -8,8 +8,8 @@
     "three": "^0.88.0"
   },
   "devDependencies": {
-    "electron": "^1.7.9",
     "node-project-helpers": "git+https://github.com/fayras/Node-Project-Helpers.git",
+    "raw-loader": "^0.5.1",
     "webpack": "^3.8.1"
   },
   "scripts": {
