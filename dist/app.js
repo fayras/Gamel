@@ -45141,14 +45141,7 @@ const Statistics = __webpack_require__(13);
 const Planet = __webpack_require__(14);
 const Skybox = __webpack_require__(18);
 
-let Changelog = undefined;
-// require('raw-loader!../CHANGELOG.md')
-var userAgent = navigator.userAgent.toLowerCase();
-if (userAgent.indexOf(' electron/') > -1) {
-  Changelog = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"fs\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).readFileSync('./CHANGELOG.md', 'utf8')
-} else {
-  Changelog = __webpack_require__(19);
-}
+const Changelog = __webpack_require__(19);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -45696,7 +45689,7 @@ module.exports = function(module) {
 /* 4 */
 /***/ (function(module, exports) {
 
-module.exports = {"name":"gamel","description":"Gamel - Game of Life Simulation in 3D","author":"Dimitri Tarnavski","version":"0.1.1","dependencies":{"alerty":"0.0.1","three":"^0.88.0"},"devDependencies":{"electron":"^1.7.9","node-project-helpers":"git+https://github.com/fayras/Node-Project-Helpers.git","raw-loader":"^0.5.1","webpack":"^3.8.1"},"scripts":{"start":"electron .","web":"webpack js/app.js dist/app.js --hide-modules","preversion":"npm run web","version":"nph version --changelog && git add .","postversion":"git push && git push --tags"}}
+module.exports = {"name":"gamel","description":"Gamel - Game of Life Simulation in 3D","author":"Dimitri Tarnavski","version":"0.1.1","dependencies":{"alerty":"0.0.1","three":"^0.88.0"},"devDependencies":{"node-project-helpers":"git+https://github.com/fayras/Node-Project-Helpers.git","raw-loader":"^0.5.1","webpack":"^3.8.1"},"scripts":{"start":"nph serve dist/","web":"webpack js/app.js dist/app.js --hide-modules","preversion":"npm run web","version":"nph version --changelog && git add .","postversion":"git push && git push --tags"}}
 
 /***/ }),
 /* 5 */
