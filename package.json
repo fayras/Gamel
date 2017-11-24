@@ -4,6 +4,7 @@
   "author": "Dimitri Tarnavski",
   "version": "0.1.0",
   "dependencies": {
+    "alerty": "0.0.1",
     "three": "^0.88.0"
   },
   "devDependencies": {

@@ -1,4 +1,6 @@
+const alerty = require('alerty/dist/js/alerty.js');
 const THREE = require('three');
+const package = require('../package.json');
 const dat = require('./dat.gui/dat.gui.js');
 const Controls = require('./Controls');
 const EffectComposer = require('./EffectComposer');
@@ -107,6 +109,10 @@ bloomSettings.add(settings.bloom, 'enable').name('Aktiviert');
 bloomSettings.add(bloomPass, 'threshold').name('Schwelle').min(0.1).max(1.0);
 bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
 bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
+
+gui.add({ version: () => {
+  alerty.alert('test', { okLabel: 'Schließen' });
+} }, 'version').name(`Version ${package.version}`);
 
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();

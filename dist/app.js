@@ -45129,15 +45129,17 @@ function CanvasRenderer() {
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+const alerty = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"alerty\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 const THREE = __webpack_require__(0);
-const dat = __webpack_require__(2);
-const Controls = __webpack_require__(3);
-const EffectComposer = __webpack_require__(4);
-const RenderPass = __webpack_require__(5);
-const BloomPass = __webpack_require__(6);
-const Statistics = __webpack_require__(10);
-const Planet = __webpack_require__(11);
-const Skybox = __webpack_require__(15);
+const package = __webpack_require__(2);
+const dat = __webpack_require__(3);
+const Controls = __webpack_require__(4);
+const EffectComposer = __webpack_require__(5);
+const RenderPass = __webpack_require__(6);
+const BloomPass = __webpack_require__(7);
+const Statistics = __webpack_require__(11);
+const Planet = __webpack_require__(12);
+const Skybox = __webpack_require__(16);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -45159,7 +45161,7 @@ camera.position.z = 40;
 // Erzeugt eine neue Instanz zum Kontrollieren der Kamera,
 // so dass die Szene mit der Maus bewegt werden kann.
 let controls = new Controls(camera, renderer.domElement);
-controls.rotateSpeed = 0.06;
+controls.rotateSpeed = 0.1;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxDistance = 1500;
@@ -45239,6 +45241,10 @@ bloomSettings.add(bloomPass, 'threshold').name('Schwelle').min(0.1).max(1.0);
 bloomSettings.add(bloomPass, 'strength').name('Stärke').min(0.0).max(3.0);
 bloomSettings.add(bloomPass, 'radius').name('Radius').min(0.0).max(1.0);
 
+gui.add({ version: () => {
+  alerty.alert('test');
+} }, 'version').name(`Version ${package.version}`);
+
 let timePerFrame = 1 / 60.0;
 let currentTime = Date.now();
 
@@ -45293,6 +45299,12 @@ renderer.domElement.addEventListener("mouseup", (event) => {
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports) {
+
+module.exports = {"name":"gamel","description":"Gamel - Game of Life Simulation in 3D","author":"Dimitri Tarnavski","version":"0.1.0","dependencies":{"alerty":"0.0.1","three":"^0.88.0"},"devDependencies":{"electron":"^1.7.9","webpack":"^3.8.1"},"scripts":{"start":"electron .","web":"webpack js/app.js dist/app.js --hide-modules"}}
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -49589,7 +49601,7 @@ return /******/ (function(modules) { // webpackBootstrap
 //# sourceMappingURL=dat.gui.js.map
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50641,7 +50653,7 @@ module.exports = OrbitControls;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50840,7 +50852,7 @@ var EffectComposer = function ( renderer, renderTarget ) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50913,7 +50925,7 @@ var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAl
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -50924,9 +50936,9 @@ var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAl
  */
 
 const THREE = __webpack_require__(0);
-const LuminosityHighPassShader = __webpack_require__(7);
-const CopyShader = __webpack_require__(8);
-const ShaderPass = __webpack_require__(9);
+const LuminosityHighPassShader = __webpack_require__(8);
+const CopyShader = __webpack_require__(9);
+const ShaderPass = __webpack_require__(10);
 
 var UnrealBloomPass = function ( resolution, strength, radius, threshold ) {
 
@@ -51308,7 +51320,7 @@ var UnrealBloomPass = function ( resolution, strength, radius, threshold ) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51380,7 +51392,7 @@ THREE.LuminosityHighPassShader = {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51434,7 +51446,7 @@ THREE.CopyShader = {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51509,7 +51521,7 @@ THREE.ShaderPass = function ( shader, textureID ) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 class Statistics {
@@ -51535,12 +51547,12 @@ module.exports = Statistics;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
-const Board = __webpack_require__(12);
-const Cell = __webpack_require__(13);
+const Board = __webpack_require__(13);
+const Cell = __webpack_require__(14);
 
 class Planet extends THREE.Group {
   constructor(radius, width, height) {
@@ -51642,7 +51654,7 @@ module.exports = Planet;
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 Number.prototype.mod = function(n) {
@@ -51764,11 +51776,11 @@ module.exports = Board;
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
-const Tween = __webpack_require__(14);
+const Tween = __webpack_require__(15);
 
 class Cell extends THREE.Mesh {
   constructor(pos , state = Cell.ALIVE) {
@@ -51850,7 +51862,7 @@ module.exports = Cell;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 class Tween {
@@ -51893,7 +51905,7 @@ module.exports = Tween;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const THREE = __webpack_require__(0);
